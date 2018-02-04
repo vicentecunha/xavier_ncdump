@@ -1,0 +1,14 @@
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\bin\Debug\netcdf2csv.exe.config
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\bin\Debug\netcdf2csv.exe
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\bin\Debug\netcdf2csv.pdb
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\netcdf2csv.csprojResolveAssemblyReference.cache
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\MainWindow.g.cs
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\App.g.cs
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\netcdf2csv_MarkupCompile.cache
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\netcdf2csv_MarkupCompile.lref
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\MainWindow.baml
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\netcdf2csv.g.resources
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\netcdf2csv.Properties.Resources.resources
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\netcdf2csv.csproj.GenerateResource.Cache
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\netcdf2csv.exe
+c:\users\vicen\documents\visual studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\netcdf2csv.pdb

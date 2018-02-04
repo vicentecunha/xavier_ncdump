@@ -1,0 +1,13 @@
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Release\MainWindow.g.cs
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Release\App.g.cs
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Release\MainWindow.baml
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Release\Xavier ncdump.csproj.GenerateResource.Cache
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\bin\Release\xavier_ncdump.exe.config
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\bin\Release\xavier_ncdump.exe
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\bin\Release\xavier_ncdump.pdb
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Release\xavier_ncdump_MarkupCompile.cache
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Release\xavier_ncdump_MarkupCompile.lref
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Release\xavier_ncdump.g.resources
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Release\xavier_ncdump.Properties.Resources.resources
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Release\xavier_ncdump.exe
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Release\xavier_ncdump.pdb
