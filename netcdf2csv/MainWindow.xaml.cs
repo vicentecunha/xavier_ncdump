@@ -23,7 +23,7 @@ namespace xavier_ncdump
         private double[] latitude, longitude, time;
         private double?[,,] data;
         private TextBox fileTB, kindTB, headerTB;
-        private Button importBTN, exportBTN;
+        private Button importBTN, exportCSV_BTN, exportTXT_BTN;
         private TextBlock statusTB;
         private string importFilename, exportFilename, ft, fh, varName;
         private static ManualResetEvent manualEvent_import = new ManualResetEvent(false);
@@ -59,9 +59,14 @@ namespace xavier_ncdump
             importBTN = (Button)sender;
         }
 
-        private void exportBTN_loaded(object sender, RoutedEventArgs e)
+        private void exportCSV_BTN_loaded(object sender, RoutedEventArgs e)
         {
-            exportBTN = (Button)sender;
+            exportCSV_BTN = (Button)sender;
+        }
+
+        private void exportTXT_BTN_loaded(object sender, RoutedEventArgs e)
+        {
+            exportTXT_BTN = (Button)sender;
         }
 
         private void exportTB_loaded(object sender, RoutedEventArgs e)
@@ -82,10 +87,10 @@ namespace xavier_ncdump
             return ofd.FileName;
         }
 
-        private string outputFile()
+        private string outputFile(string str)
         {
             SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Filter = "CSV|*.csv";
+            sfd.Filter = str;
             Nullable<bool> result = sfd.ShowDialog();
             if (result != true) return "";
             return sfd.FileName;
@@ -198,6 +203,20 @@ namespace xavier_ncdump
             manualEvent_import.Set();
         }
 
+        private void disableBTNs()
+        {
+            importBTN.IsEnabled = false;
+            exportCSV_BTN.IsEnabled = false;
+            exportTXT_BTN.IsEnabled = false;
+        }
+
+        private void enableBTNs()
+        {
+            importBTN.IsEnabled = true;
+            exportCSV_BTN.IsEnabled = true;
+            exportTXT_BTN.IsEnabled = true;
+        }
+
         private void import_clicked(object sender, RoutedEventArgs e)
         {
             // File selection dialog
@@ -218,15 +237,14 @@ namespace xavier_ncdump
             headerTB.Text = fh;
 
             // Import nc in separate thread
-            importBTN.IsEnabled = false;
+            disableBTNs();
             statusTB.Text = "Importando, por favor aguarde.";
             Dispatcher.Invoke(new Action(() => { }), DispatcherPriority.ContextIdle, null);
             Thread thread = new Thread(new ThreadStart(importNC));
             thread.Start();
             manualEvent_import.WaitOne();
             statusTB.Text = "Pronto!";
-            importBTN.IsEnabled = true;
-            exportBTN.IsEnabled = true;
+            enableBTNs();
         }
 
         private int getColNum(double lenTotal, double lenLast)
@@ -276,24 +294,59 @@ namespace xavier_ncdump
             manualEvent_export.Set();
         }
 
-        private void export_clicked(object sender, RoutedEventArgs e)
+        private void writeTXT()
+        {
+            FileStream fs = File.Open(exportFilename, FileMode.Create, FileAccess.Write, FileShare.None);
+            writeToFileStream("Time;Latitude;Longitude;" + varName + "\n", fs);
+            for (int i = 0; i < time.Length; i++)
+            {
+                for (int j = 0; j < latitude.Length; j++)
+                {
+                    for (int k = 0; k < longitude.Length; k++)
+                    {
+                        string str = String.Format("{0:G};{1:G};{2:G};{3:G}\n", time[i], latitude[j], longitude[k], data[i, j, k]);
+                        writeToFileStream(str, fs);
+                    }
+                }
+            }
+            fs.Close();
+            manualEvent_export.Set();
+        }
+
+        private void exportCSV_clicked(object sender, RoutedEventArgs e)
         {
             // File selection dialog
-            string filename = outputFile();
+            string filename = outputFile("CSV | *.csv");
             if (filename == "") return;
             exportFilename = filename;
 
             // Write to CSV in separate thread
-            importBTN.IsEnabled = false;
-            exportBTN.IsEnabled = false;
+            disableBTNs();
             statusTB.Text = "Exportando, por favor aguarde.";
             Dispatcher.Invoke(new Action(() => { }), DispatcherPriority.ContextIdle, null);
             Thread thread = new Thread(new ThreadStart(writeCSV));
             thread.Start();
             manualEvent_export.WaitOne();
             statusTB.Text = "Pronto!";
-            importBTN.IsEnabled = true;
-            exportBTN.IsEnabled = true;
+            enableBTNs();
+        }
+
+        private void exportTXT_clicked(object sender, RoutedEventArgs e)
+        {
+            // File selection dialog
+            string filename = outputFile("TXT | *.txt");
+            if (filename == "") return;
+            exportFilename = filename;
+
+            // Write to TXT in separate thread
+            disableBTNs();
+            statusTB.Text = "Exportando, por favor aguarde.";
+            Dispatcher.Invoke(new Action(() => { }), DispatcherPriority.ContextIdle, null);
+            Thread thread = new Thread(new ThreadStart(writeTXT));
+            thread.Start();
+            manualEvent_export.WaitOne();
+            statusTB.Text = "Pronto!";
+            enableBTNs();
         }
     }
 }
