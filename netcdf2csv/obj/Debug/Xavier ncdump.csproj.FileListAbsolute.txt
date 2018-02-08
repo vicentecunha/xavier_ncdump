@@ -12,3 +12,4 @@ C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\D
 C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\Xavier ncdump.csproj.CoreCompileInputs.cache
 C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\xavier_ncdump.exe
 C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\xavier_ncdump.pdb
+C:\Users\vicen\Documents\Visual Studio 2017\Projects\netcdf2csv\netcdf2csv\obj\Debug\Xavier ncdump.csprojResolveAssemblyReference.cache
