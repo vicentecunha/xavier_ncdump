@@ -7,16 +7,15 @@
         mc:Ignorable="d"
         Title="MainWindow" Width="768" Height="768">
     <Grid Width="768" Height="768">
-        <Button Content="Importar" HorizontalAlignment="Left" Margin="20,20,0,0" VerticalAlignment="Top" Width="75" Click="import_clicked" Loaded="importBTN_loaded"/>
+        <Button Content="..." HorizontalAlignment="Left" Margin="724,45,0,0" VerticalAlignment="Top" Width="16" Click="import_clicked" Loaded="importBTN_loaded" Height="16"/>
         <TextBlock HorizontalAlignment="Left" Margin="34,45,0,0" TextWrapping="Wrap" Text="Arquivo:" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="52,66,0,0" TextWrapping="Wrap" Text="Tipo:" VerticalAlignment="Top"/>
-        <TextBox Height="16" Margin="83,45,0,0" Text="" VerticalAlignment="Top" Loaded="fileTB_loaded" IsReadOnly="True" MaxLines="1" HorizontalAlignment="Left" Width="657"/>
+        <TextBox Height="16" Margin="83,45,0,0" Text="" VerticalAlignment="Top" Loaded="fileTB_loaded" IsReadOnly="True" MaxLines="1" HorizontalAlignment="Left" Width="636"/>
         <TextBox HorizontalAlignment="Left" Height="16" Margin="83,66,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Loaded="kindTB_loaded" Width="657"/>
-        <TextBlock HorizontalAlignment="Left" Margin="20,87,0,0" TextWrapping="Wrap" Text="Cabeçalho:" VerticalAlignment="Top" RenderTransformOrigin="0.282,1.917"/>
+        <TextBlock HorizontalAlignment="Left" Margin="20,87,0,0" TextWrapping="Wrap" Text="Cabeçalho:" VerticalAlignment="Top"/>
         <TextBox HorizontalAlignment="Left" Margin="83,87,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" IsReadOnly="True" Loaded="headerTB_loaded" Width="657"/>
-        <Button Content="Exportar .csv" HorizontalAlignment="Left" Margin="100,20,0,0" VerticalAlignment="Top" Width="75" Click="exportCSV_clicked" IsEnabled="False" Loaded="exportCSV_BTN_loaded"/>
-        <TextBlock HorizontalAlignment="Left" Margin="260,24,0,0" TextWrapping="Wrap" Text="Pronto!" VerticalAlignment="Top" Loaded="exportTB_loaded"/>
-        <Button Content="Exportar .txt" HorizontalAlignment="Left" Margin="180,20,0,0" VerticalAlignment="Top" Width="75" Click="exportTXT_clicked" IsEnabled="False" Loaded="exportTXT_BTN_loaded"/>
+        <TextBlock HorizontalAlignment="Left" Margin="100,24,0,0" TextWrapping="Wrap" Text="Pronto!" VerticalAlignment="Top" Loaded="exportTB_loaded"/>
+        <Button Content="Converter" HorizontalAlignment="Left" Margin="20,20,0,0" VerticalAlignment="Top" Width="75" Click="exportTXT_clicked" IsEnabled="False" Loaded="exportTXT_BTN_loaded"/>
 
     </Grid>
 </Window>

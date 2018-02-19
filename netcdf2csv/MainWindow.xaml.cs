@@ -11,9 +11,6 @@ using System.Windows.Threading;
 
 namespace xavier_ncdump
 {
-    /// <summary>
-    /// Interação lógica para MainWindow.xam
-    /// </summary>
     public partial class MainWindow : Window
     {
         //=========================//
@@ -21,11 +18,10 @@ namespace xavier_ncdump
         //=========================//
 
         private double[] latitude, longitude, time;
-        private double?[,,] data;
         private TextBox fileTB, kindTB, headerTB;
-        private Button importBTN, exportCSV_BTN, exportTXT_BTN;
+        private Button importBTN, exportTXT_BTN;
         private TextBlock statusTB;
-        private string importFilename, exportFilename, ft, fh, varName;
+        private string importFilename, exportFilename, tempFilename = Path.GetTempFileName(), ft, fh, varName;
         private static ManualResetEvent manualEvent = new ManualResetEvent(false);
         private Process process = new Process();
         private const int READ_NC = 0, WRITE_CSV = 1, WRITE_TXT = 2;
@@ -57,11 +53,6 @@ namespace xavier_ncdump
         private void importBTN_loaded(object sender, RoutedEventArgs e)
         {
             importBTN = (Button)sender;
-        }
-
-        private void exportCSV_BTN_loaded(object sender, RoutedEventArgs e)
-        {
-            exportCSV_BTN = (Button)sender;
         }
 
         private void exportTXT_BTN_loaded(object sender, RoutedEventArgs e)
@@ -133,6 +124,7 @@ namespace xavier_ncdump
 
         private double[] parseCoordinate(Process process, string filename, string var, int dim, int header_len)
         {
+            // Call ncdump
             process.StartInfo.Arguments = "-v " + var + " " + filename;
             process.Start();
             StreamReader reader = process.StandardOutput;
@@ -140,6 +132,7 @@ namespace xavier_ncdump
             process.WaitForExit();
             process.Close();
 
+            // Parse standard output
             string subs = output.Substring(header_len);
             double[] result = new double[dim];
             for (int i = 0; i < dim; i++)
@@ -151,7 +144,7 @@ namespace xavier_ncdump
             return result;
         }
 
-        private void parseData(Process process, string filename, string varName, int dim1, int dim2, int dim3, int header_len)
+        private void saveDataToTemp(Process process, string filename, string varName)
         {
             process.StartInfo.Arguments = "-l 4096 -v " + varName + " " + filename;
             process.Start();
@@ -160,41 +153,19 @@ namespace xavier_ncdump
             process.WaitForExit();
             process.Close();
 
-            string subs = output.Substring(output.LastIndexOf("="));
-            StringReader sr = new StringReader(subs);
-            sr.ReadLine();
-            GC.Collect();
-            data = new double?[dim1, dim2, dim3];
-            for (int i = 0; i < dim1; i++)
-            {
-                for (int j = 0; j < dim2; j++)
-                {
-                    string line = sr.ReadLine();
-                    for (int k = 0; k < dim3; k++)
-                    {
-                        line = line.Trim();
-                        if (line.StartsWith("NaN")) data[i, j, k] = null;
-                        else
-                        {
-                            Match match = Regex.Match(line, @"\b[0-9]*\.*[0-9]+\b");
-                            data[i, j, k] = Double.Parse(match.Value);
-                        }
-                        line = line.Substring(line.IndexOf(",") + 1);
-                    }
-                }
-            }
+            FileStream fs = File.Open(tempFilename, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None);
+            writeToFileStream(output, fs);
         }
 
         private void disableBTNs()
         {
             importBTN.IsEnabled = false;
-            exportCSV_BTN.IsEnabled = false;
             exportTXT_BTN.IsEnabled = false;
         }
 
         private void enableBTNs()
         {
-            exportCSV_BTN.IsEnabled = true;
+            importBTN.IsEnabled = true;
             exportTXT_BTN.IsEnabled = true;
         }
 
@@ -221,14 +192,125 @@ namespace xavier_ncdump
             int latitude_dim = parseDim(fh, "latitude");
             int longitude_dim = parseDim(fh, "longitude");
 
-            // Parse data
+            // Parse dimensions
             time = parseCoordinate(process, importFilename, "time", time_dim, fh.Length);
             latitude = parseCoordinate(process, importFilename, "latitude", latitude_dim, fh.Length);
             longitude = parseCoordinate(process, importFilename, "longitude", longitude_dim, fh.Length);
-            parseData(process, importFilename, varName, time_dim, latitude_dim, longitude_dim, fh.Length);
+
+            // Save data to temp file
+            saveDataToTemp(process, importFilename, varName);
             manualEvent.Set();
         }
 
+        private void writeTXT()
+        {
+            // Read from temp file
+            string data_str = File.ReadAllText(tempFilename);
+            data_str = data_str.Substring(data_str.LastIndexOf("=")); // trim start
+            StringReader sr = new StringReader(data_str);
+
+            // Export to file
+            FileStream fs = File.Open(exportFilename, FileMode.Create, FileAccess.Write, FileShare.None);
+            writeToFileStream("Time;Latitude;Longitude;" + varName + "\n", fs);
+            sr.ReadLine(); // first line is trashed
+            for (int i = 0; i < time.Length; i++)
+            {
+                for (int j = 0; j < latitude.Length; j++)
+                {
+                    string line = sr.ReadLine();
+                    for (int k = 0; k < longitude.Length; k++)
+                    {
+                        line = line.Trim();
+                        double? data; 
+                        if (line.StartsWith("NaN")) data = null;
+                        else
+                        {
+                            Match match = Regex.Match(line, @"\b[0-9]*\.*[0-9]+\b");
+                            data = Double.Parse(match.Value);
+                        }
+                        line = line.Substring(line.IndexOf(",") + 1);
+                        string str = String.Format("{0:G};{1:G};{2:G};{3:G}\n", time[i], latitude[j], longitude[k], data);
+                        writeToFileStream(str, fs);
+                    }
+                }
+            }
+            fs.Close();
+            manualEvent.Set();
+        }
+
+        private void execute_thread(int action)
+        {
+            // Update UI
+            disableBTNs();
+            if (action == READ_NC) statusTB.Text = "Importando, por favor aguarde.";
+            else statusTB.Text = "Exportando, por favor aguarde.";
+            Dispatcher.Invoke(new Action(() => { }), DispatcherPriority.ContextIdle, null);
+
+            // Create separate thread
+            Thread thread;
+            switch (action)
+            {
+                default:
+                case READ_NC:
+                    thread = new Thread(new ThreadStart(readNC)); 
+                    break;
+                case WRITE_TXT:
+                    thread = new Thread(new ThreadStart(writeTXT));
+                    break;
+                    /*
+                case WRITE_CSV:
+                    thread = new Thread(new ThreadStart(writeCSV));
+                    break;
+                    */
+            }
+            manualEvent.Reset();
+            thread.Start();
+            manualEvent.WaitOne();
+
+            // Update UI
+            statusTB.Text = "Pronto!";
+            enableBTNs();
+        }
+
+        private void import_clicked(object sender, RoutedEventArgs e)
+        {
+            // File selection dialog
+            string filename = inputFile();
+            if (filename == "") return;
+            fileTB.Text = filename;
+            importFilename = filename;
+
+            // ncdump process
+            process.StartInfo.FileName = @"C:\Program Files\netCDF 4.6.0\bin\ncdump.exe";
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+
+            ft = fileType(process, importFilename); // Read file type
+            fh = fileHeader(process, importFilename); // Read file header
+            kindTB.Text = ft;
+            headerTB.Text = fh;
+
+            execute_thread(READ_NC);
+        }
+
+        private void exportCSV_clicked(object sender, RoutedEventArgs e)
+        {
+            string filename = outputFile("CSV | *.csv");
+            if (filename == "") return;
+            exportFilename = filename;
+            execute_thread(WRITE_CSV);
+        }
+
+        private void exportTXT_clicked(object sender, RoutedEventArgs e)
+        {
+            string filename = outputFile("TXT | *.txt");
+            if (filename == "") return;
+            exportFilename = filename;
+            execute_thread(WRITE_TXT);
+        }
+
+        /*
         private void writeCSV()
         {
             FileStream fs = File.Open(exportFilename, FileMode.Create, FileAccess.Write, FileShare.None);
@@ -262,93 +344,6 @@ namespace xavier_ncdump
             fs.Close();
             manualEvent.Set();
         }
-
-        private void writeTXT()
-        {
-            FileStream fs = File.Open(exportFilename, FileMode.Create, FileAccess.Write, FileShare.None);
-            writeToFileStream("Time;Latitude;Longitude;" + varName + "\n", fs);
-            for (int i = 0; i < time.Length; i++)
-            {
-                for (int j = 0; j < latitude.Length; j++)
-                {
-                    for (int k = 0; k < longitude.Length; k++)
-                    {
-                        string str = String.Format("{0:G};{1:G};{2:G};{3:G}\n", time[i], latitude[j], longitude[k], data[i, j, k]);
-                        writeToFileStream(str, fs);
-                    }
-                }
-            }
-            fs.Close();
-            manualEvent.Set();
-        }
-
-        private void execute_thread(int action)
-        {
-            disableBTNs();
-            if (action == READ_NC) statusTB.Text = "Importando, por favor aguarde.";
-            else statusTB.Text = "Exportando, por favor aguarde.";
-            Dispatcher.Invoke(new Action(() => { }), DispatcherPriority.ContextIdle, null);
-
-            Thread thread;
-            switch (action)
-            {
-                default: case READ_NC: thread = new Thread(new ThreadStart(readNC)); break;
-                case WRITE_CSV:
-                    thread = new Thread(new ThreadStart(writeCSV));
-                    Application.Current.Shutdown(0);
-                    break;
-                case WRITE_TXT:
-                    thread = new Thread(new ThreadStart(writeTXT));
-                    Application.Current.Shutdown(0);
-                    break;
-            }
-            manualEvent.Reset();
-            thread.Start();
-            manualEvent.WaitOne();
-
-            statusTB.Text = "Pronto!";
-            enableBTNs();
-        }
-
-        private void import_clicked(object sender, RoutedEventArgs e)
-        {
-            // File selection dialog
-            string filename = inputFile();
-            if (filename == "") return;
-            fileTB.Text = filename;
-            importFilename = filename;
-
-            // ncdump process
-            process.StartInfo.FileName = @"C:\Program Files\netCDF 4.6.0\bin\ncdump.exe";
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.CreateNoWindow = true;
-
-            ft = fileType(process, importFilename); // Read file type
-            fh = fileHeader(process, importFilename); // Read file header
-            kindTB.Text = ft;
-            headerTB.Text = fh;
-            execute_thread(READ_NC);
-        }
-
-        private void exportCSV_clicked(object sender, RoutedEventArgs e)
-        {
-            // File selection dialog
-            string filename = outputFile("CSV | *.csv");
-            if (filename == "") return;
-            exportFilename = filename;
-
-            execute_thread(WRITE_CSV);
-        }
-
-        private void exportTXT_clicked(object sender, RoutedEventArgs e)
-        {
-            // File selection dialog
-            string filename = outputFile("TXT | *.txt");
-            if (filename == "") return;
-            exportFilename = filename;
-
-            execute_thread(WRITE_TXT);
-        }
+        */
     }
 }
